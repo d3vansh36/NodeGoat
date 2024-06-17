@@ -67,4 +67,3 @@ jobs:
            target: 'http://localhost:4000'
            issue_title: 'Security Issues'
            fail_action: false
-           cmd_options: '-x report_xml.xml'
