@@ -1,4 +1,4 @@
-name: TruffleHog Scan
+name: SAST & DAST Scans
 
 on:
   push:
