@@ -62,9 +62,8 @@ jobs:
         run: docker-compose up --detach
 
       - name: ZAP Full Scan
-        uses: zaproxy/action-full-scan@v0.10.0
-        with:
-           target: 'http://localhost:4000'
-           issue_title: 'Security Issues'
-           fail_action: false
-           cmd_options: '-x report_xml'
+        run: |
+          /usr/bin/touch zap_json.json zap_xml.xml
+          /usr/bin/chmod a+w zap_json.json zap_xml.xml
+          /usr/bin/docker pull ghcr.io/zaproxy/zaproxy:stable -q
+          /usr/bin/docker run -v /home/runner/work/NodeGoat/NodeGoat:/zap/wrk/:rw --network=host -e ZAP_AUTH_HEADER -e ZAP_AUTH_HEADER_VALUE -e ZAP_AUTH_HEADER_SITE -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py -t http://localhost:4000 -J zap_json.json -x zap_xml.xml
