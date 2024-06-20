@@ -1,15 +1,62 @@
-name: ZAP Full Scan
+name: Full Scan
 
 on: [push]
 
 jobs:
+  trufflehog_secret_scanning:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Install TruffleHog
+        run: |
+          python -m pip install --upgrade pip
+          pip install truffleHog
+      - name: Run TruffleHog
+        run: |
+          trufflehog "file://$(pwd)" --json | jq > truffle_output.json
+      - name: Upload TruffleHog scan results
+        uses: actions/upload-artifact@v2
+        with:
+          name: truffle_output.json
+          path: truffle_output.json
+  semgrep-scan:
+    runs-on: ubuntu-latest
+    container:
+      image: returntocorp/semgrep
+
+    steps:
+      - name: clone application source code
+        uses: actions/checkout@v4
+
+      - name: full scan
+        run: |
+          semgrep \
+            --json --output report-semgrep.json \
+            --metrics=off \
+            --config="p/default"
+      - name: save report as pipeline artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-semgrep.json
+          path: report-semgrep.json
+
+      - name: Download report
+        uses: actions/download-artifact@v4
+        with:
+          name: report-semgrep.json
+          
   dast:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
 
       - name: Build and start application
         run: |
