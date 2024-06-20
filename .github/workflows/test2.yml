@@ -20,14 +20,9 @@ jobs:
             sleep 5
           done
 
-      - name: Prepare ZAP directories
-        run: |
-          docker run --rm -v $(pwd):/zap ghcr.io/zaproxy/zaproxy:stable \
-          sh -c "mkdir -p /zap/wrk && chmod 777 /zap/wrk"
-
       - name: ZAP Full Scan
         run: |
-          docker run --network container:$(docker-compose ps -q web) -v $(pwd):/zap/wrk -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py \
+          docker run --network container:$(docker-compose ps -q web) -v $(pwd):/zap/wrk --user root -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py \
           -t http://web:4000 -x /zap/wrk/zap_xml.xml
 
       - name: Cleanup
