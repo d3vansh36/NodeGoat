@@ -64,4 +64,4 @@ jobs:
       - name: ZAP Full Scan
         run: | 
           docker run -p 8080:4000 mongo:4.4
-          docker run -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py \ -t http://localhost:8080 -x zap_xml.xml
+          docker run -p 8080:4000 -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py \ -t http://localhost:8080 -x zap_xml.xml
