@@ -23,7 +23,7 @@ jobs:
       - name: ZAP Full Scan
         run: |
           docker run --network container:$(docker-compose ps -q web) -v $(pwd):/zap/wrk --user root -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py \
-          -t http://web:4000 -x /zap/wrk/zap_xml.xml
+          -t http://web:4000 -I -x /zap/wrk/zap_xml.xml
 
       - name: Cleanup
         run: docker-compose down
