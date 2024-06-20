@@ -1,4 +1,4 @@
-name: DAST Scans
+name: ZAP Full Scan
 
 on: [push]
 
@@ -11,28 +11,19 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Create Docker network
-        run: docker network create zap-network
-
       - name: Build and start application
         run: |
-          docker-compose build
-          docker-compose up --detach
+          docker-compose -f docker-compose.yml up --build --detach
           # Optionally wait for the application to be ready
           until curl -s http://localhost:4000 > /dev/null; do
             echo "Waiting for application to be ready..."
             sleep 5
           done
 
-      - name: Run MongoDB container
-        run: docker run -d --network zap-network --name mongo mongo:4.4
-
       - name: ZAP Full Scan
         run: |
-          docker run --network zap-network -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py \
-          -t http://localhost:4000 -x zap_xml.xml
+          docker run --network container:$(docker-compose ps -q web) -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py \
+          -t http://web:4000 -x zap_xml.xml
 
       - name: Cleanup
-        run: |
-          docker-compose down
-          docker network rm zap-network
+        run: docker-compose down
