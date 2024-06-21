@@ -21,7 +21,7 @@ jobs:
           pip install trufflehog3
       - name: Run TruffleHog
         run: |
-          trufflehog3 --json "file://$(pwd)" | jq > truffle_output.json
+          trufflehog3 --json . | jq > truffle_output.json
       - name: Upload TruffleHog scan results
         uses: actions/upload-artifact@v2
         with:
