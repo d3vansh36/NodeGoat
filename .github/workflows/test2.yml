@@ -1,9 +1,12 @@
 name: Full Scan
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
-  trufflehog_secret_scanning:
+  trufflehog-scan:
     runs-on: ubuntu-latest
 
     steps:
@@ -15,11 +18,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install trufflehog3
           
-      - name: Run TruffleHog
+      - name: Run TruffleHog3
         run: |
           trufflehog3 --no-entropy --format json . | jq > truffle_output.json
           
-      - name: Upload TruffleHog scan results
+      - name: Upload TruffleHog3 scan results
         uses: actions/upload-artifact@v4
         with:
           name: truffle_output.json
@@ -31,25 +34,27 @@ jobs:
       image: returntocorp/semgrep
 
     steps:
-      - name: clone application source code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: full scan
+      - name: Run Semgrep
         run: |
           semgrep \
             --json --output report-semgrep.json \
             --metrics=off \
             --config="p/default"
-      - name: save report as pipeline artifact
+            
+      - name: Upload Semgrep scan results
         uses: actions/upload-artifact@v4
         with:
           name: report-semgrep.json
           path: report-semgrep.json
           
-  dast:
+  zap-scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       - name: Build and start application
         run: |
@@ -60,12 +65,12 @@ jobs:
             sleep 5
           done
 
-      - name: ZAP Full Scan
+      - name: Run ZAP Full Scan
         run: |
           docker run --network container:$(docker-compose ps -q web) -v $(pwd):/zap/wrk --user root -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py \
           -t http://web:4000 -I -x /zap/wrk/zap_xml.xml
           
-      - name: Archive ZAP XML Artifact
+      - name: Upload ZAP scan results
         uses: actions/upload-artifact@v4
         with:
           name: zap_xml_report
