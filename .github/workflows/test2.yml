@@ -23,7 +23,7 @@ jobs:
         run: |
           trufflehog3 --no-entropy --format json . | jq > truffle_output.json
       - name: Upload TruffleHog scan results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: truffle_output.json
           path: truffle_output.json
@@ -69,7 +69,7 @@ jobs:
           -t http://web:4000 -I -x /zap/wrk/zap_xml.xml
           
       - name: Archive ZAP XML Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: zap_xml_report
           path: zap_xml.xml
