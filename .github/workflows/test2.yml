@@ -27,6 +27,7 @@ jobs:
         with:
           name: truffle_output.json
           path: truffle_output.json
+          
   semgrep-scan:
     runs-on: ubuntu-latest
     container:
@@ -47,11 +48,6 @@ jobs:
         with:
           name: report-semgrep.json
           path: report-semgrep.json
-
-      - name: Download report
-        uses: actions/download-artifact@v4
-        with:
-          name: report-semgrep.json
           
   dast:
     runs-on: ubuntu-latest
